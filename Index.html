@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bounce Ball Clicker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .game-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 800px;
+            padding: 25px;
+            text-align: center;
+            overflow: hidden;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #3498db;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .score-container, .timer-container {
+            font-size: 1.5rem;
+        }
+        
+        .game-area {
+            position: relative;
+            width: 100%;
+            height: 450px;
+            background-color: #ecf0f1;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .ball {
+            position: absolute;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.1s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .ball:active {
+            transform: scale(0.9);
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        #startBtn {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        #startBtn:hover {
+            background-color: #27ae60;
+            transform: translateY(-3px);
+        }
+        
+        #resetBtn {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        #resetBtn:hover {
+            background-color: #c0392b;
+            transform: translateY(-3px);
+        }
+        
+        .message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 10px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: none;
+            z-index: 10;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+        
+        .instructions {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            text-align: left;
+            font-size: 1rem;
+            line-height: 1.5;
+            color: #333;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .instructions h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .game-area {
+                height: 350px;
+            }
+            
+            .game-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            button {
+                width: 80%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .game-area {
+                height: 300px;
+            }
+            
+            .score-container, .timer-container {
+                font-size: 1.2rem;
+            }
+            
+            .message {
+                font-size: 1.4rem;
+                padding: 15px 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎮 Bounce Ball Clicker 🎮</h1>
+        
+        <div class="game-info">
+            <div class="score-container">Score: <span id="score">0</span></div>
+            <div class="timer-container">Time: <span id="timer">30</span>s</div>
+        </div>
+        
+        <div class="game-area" id="gameArea">
+            <div class="message" id="message"></div>
+            <!-- Ball will be created dynamically -->
+        </div>
+        
+        <div class="controls">
+            <button id="startBtn">Start Game</button>
+            <button id="resetBtn">Reset Game</button>
+        </div>
+        
+        <div class="instructions">
+            <h3>How to Play</h3>
+            <p>Click on the bouncing ball as many times as you can before time runs out! The ball will get faster and change colors as your score increases. Try to beat your high score!</p>
+        </div>
+    </div>
+
+    <script>
+        // Game variables
+        let score = 0;
+        let timeLeft = 30;
+        let gameActive = false;
+        let timer;
+        let ball;
+        let ballSpeed = 3;
+        let ballDirectionX = 1;
+        let ballDirectionY = 1;
+        let ballSize = 80;
+        
+        // DOM elements
+        const gameArea = document.getElementById('gameArea');
+        const scoreElement = document.getElementById('score');
+        const timerElement = document.getElementById('timer');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const messageElement = document.getElementById('message');
+        
+        // Initialize game
+        function initGame() {
+            createBall();
+            resetBtn.addEventListener('click', resetGame);
+            startBtn.addEventListener('click', startGame);
+        }
+        
+        // Create the ball element
+        function createBall() {
+            ball = document.createElement('div');
+            ball.classList.add('ball');
+            ball.style.width = `${ballSize}px`;
+            ball.style.height = `${ballSize}px`;
+            ball.style.backgroundColor = getRandomColor();
+            ball.style.left = `${Math.random() * (gameArea.offsetWidth - ballSize)}px`;
+            ball.style.top = `${Math.random() * (gameArea.offsetHeight - ballSize)}px`;
+            
+            ball.addEventListener('click', handleBallClick);
+            gameArea.appendChild(ball);
+        }
+        
+        // Handle ball click
+        function handleBallClick() {
+            if (!gameActive) return;
+            
+            score++;
+            scoreElement.textContent = score;
+            
+            // Increase speed based on score
+            if (score % 5 === 0) {
+                ballSpeed += 0.5;
+            }
+            
+            // Change ball color
+            ball.style.backgroundColor = getRandomColor();
+            
+            // Add visual feedback
+            ball.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                ball.style.transform = 'scale(1)';
+            }, 100);
+            
+            // Move ball to new random position
+            moveBallToRandomPosition();
+        }
+        
+        // Move ball to random position
+        function moveBallToRandomPosition() {
+            ball.style.left = `${Math.random() * (gameArea.offsetWidth - ballSize)}px`;
+            ball.style.top = `${Math.random() * (gameArea.offsetHeight - ballSize)}px`;
+        }
+        
+        // Start the game
+        function startGame() {
+            if (gameActive) return;
+            
+            gameActive = true;
+            score = 0;
+            timeLeft = 30;
+            ballSpeed = 3;
+            
+            scoreElement.textContent = score;
+            timerElement.textContent = timeLeft;
+            
+            startBtn.disabled = true;
+            messageElement.style.display = 'none';
+            
+            // Start timer
+            timer = setInterval(updateTimer, 1000);
+            
+            // Start ball movement
+            moveBall();
+        }
+        
+        // Update timer
+        function updateTimer() {
+            timeLeft--;
+            timerElement.textContent = timeLeft;
+            
+            if (timeLeft <= 0) {
+                endGame();
+            }
+        }
+        
+        // Move ball with bouncing effect
+        function moveBall() {
+            if (!gameActive) return;
+            
+            let ballX = parseInt(ball.style.left) || 0;
+            let ballY = parseInt(ball.style.top) || 0;
+            
+            // Update ball position
+            ballX += ballSpeed * ballDirectionX;
+            ballY += ballSpeed * ballDirectionY;
+            
+            // Check for collisions with walls
+            if (ballX <= 0 || ballX >= gameArea.offsetWidth - ballSize) {
+                ballDirectionX *= -1;
+            }
+            
+            if (ballY <= 0 || ballY >= gameArea.offsetHeight - ballSize) {
+                ballDirectionY *= -1;
+            }
+            
+            // Apply new position
+            ball.style.left = `${ballX}px`;
+            ball.style.top = `${ballY}px`;
+            
+            // Continue animation
+            requestAnimationFrame(moveBall);
+        }
+        
+        // End the game
+        function endGame() {
+            gameActive = false;
+            clearInterval(timer);
+            startBtn.disabled = false;
+            
+            // Show game over message
+            messageElement.textContent = `Game Over! Final Score: ${score}`;
+            messageElement.style.display = 'block';
+        }
+        
+        // Reset the game
+        function resetGame() {
+            gameActive = false;
+            clearInterval(timer);
+            startBtn.disabled = false;
+            
+            score = 0;
+            timeLeft = 30;
+            ballSpeed = 3;
+            
+            scoreElement.textContent = score;
+            timerElement.textContent = timeLeft;
+            
+            messageElement.style.display = 'none';
+            
+            // Reset ball position and color
+            if (ball) {
+                ball.style.backgroundColor = getRandomColor();
+                moveBallToRandomPosition();
+            }
+        }
+        
+        // Generate random color
+        function getRandomColor() {
+            const colors = [
+                '#e74c3c', '#3498db', '#2ecc71', '#f39c12', 
+                '#9b59b6', '#1abc9c', '#d35400', '#c0392b'
+            ];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+        
+        // Initialize the game when page loads
+        window.onload = initGame;
+    </script>
+</body>
+</html>
